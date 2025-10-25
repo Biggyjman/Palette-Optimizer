@@ -10,6 +10,8 @@ Instructions
 2. Under options, Select a palette, Wplace free, Wplace complete, and Geopixels Free are set as default in the program.
 2A. If you would like the palette of the image automatically simplified, select simplify palette and chose a similarity threshold.
 3. Click run, The palette of the image will be modified. If simplify palette is selected, The palette will be modified to mark similar colors as the same colors as long as they are with the threshold.
+4. When simplifying an image it will ask you to save the new palette.
+5. Save your new image
 
 I hope that the program is self explanatory.
 
