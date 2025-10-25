@@ -44,7 +44,7 @@ for _opt in DEFAULT_PALETTE_OPTIONS:
 
 # Persistence for user palettes
 # All app data stays alongside this script
-_CONFIG_STORE = os.path.join(BASE_DIR, "image_editor_config.json")
+_CONFIG_STORE = os.path.join(BASE_DIR, "palette_optimizer_config.json")
 _PALETTES_DIR = os.path.join(BASE_DIR, "palettes")
 # persist last selected palette
 _LAST_SELECTED_PALETTE = None
@@ -261,6 +261,7 @@ class ImageViewer(tk.Tk):
     def __init__(self):
         super().__init__()
         global _LAST_SELECTED_PALETTE
+        # Change the app window title
         self.title("Palette Optimizer")
         self.geometry("1200x600")  # wider window for side-by-side
 
@@ -385,7 +386,7 @@ class ImageViewer(tk.Tk):
         self.bind("<Control-s>", lambda e: (self.save_image(), "break"))
         self.bind("<Control-Shift-S>", lambda e: (self.save_image_as(), "break"))
         self.bind("<Escape>", lambda e: (self._close_top_dialog(), "break"))
-        # Zoom with +/-
+        # Zoom with +/-"
         self.bind("<plus>", lambda e: (self._zoom_both(1.1), "break"))
         self.bind("<minus>", lambda e: (self._zoom_both(1/1.1), "break"))
         self.bind("<KP_Add>", lambda e: (self._zoom_both(1.1), "break"))
@@ -442,6 +443,8 @@ class ImageViewer(tk.Tk):
 
     def _center_over(self, parent, win):
         """Center toplevel 'win' over 'parent' window."""
+
+
         try:
             parent.update_idletasks()
             win.update_idletasks()
@@ -1167,7 +1170,7 @@ class ImageViewer(tk.Tk):
 
         actions = ttk.Frame(root)
         actions.grid(row=3, column=0, sticky="e", pady=(0, 0))
-        ttk.Button(actions, text="Save Palette", command=save_current_palette).pack(side="right")
+        ttk.Button(actions, text="Save", command=save_current_palette).pack(side="right")
         ttk.Button(actions, text="Close", command=_close_and_remove).pack(side="right", padx=(6, 0))
         ttk.Button(actions, text="Apply and Close", command=apply_and_close).pack(side="right", padx=(6, 0))
 
@@ -1227,6 +1230,8 @@ class ImageViewer(tk.Tk):
     def save_image(self):
         """Save the current converted image (if exists) or original to the current save_path.
         If no save_path is known, delegate to Save As."""
+
+
         if self.converted_image is not None:
             img = self.converted_image
         else:
@@ -1401,6 +1406,8 @@ class ImageViewer(tk.Tk):
 
     def analyze_done(self, new_image):
         """Called on main thread when worker finishes."""
+
+
         # If Simplify Pallette was selected, ask whether to save the collected colors as a new palette
         try:
             if new_image is not None and self.get_pallette() == "Simplify Pallette" and saved_colors:
@@ -1505,7 +1512,7 @@ class ImageViewer(tk.Tk):
             # don't let saving interfere with rendering; log silently
             try:
                 tb = traceback.format_exc()
-                log_path = os.path.join(BASE_DIR, "image_editor_error.log")
+                log_path = os.path.join(BASE_DIR, "palette_optimizer_error.log")
                 with open(log_path, "a", encoding="utf-8") as f:
                     f.write(f"\n\nException showing save simplified palette prompt:\n{tb}\n")
             except Exception:
@@ -1673,7 +1680,7 @@ def analyze_image_worker():
     except Exception as ex:
         tb = traceback.format_exc()
         try:
-            log_path = os.path.join(BASE_DIR, "image_editor_error.log")
+            log_path = os.path.join(BASE_DIR, "palette_optimizer_error.log")
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"\n\nException in analyze_image_worker:\n{tb}\n")
         except Exception:

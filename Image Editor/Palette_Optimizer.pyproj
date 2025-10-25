@@ -3,13 +3,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a467a83e-64b1-4188-9bd0-0ae43a118485</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
-    <StartupFile>Image_Editor.py</StartupFile>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>Palette_Optimizer.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>Image Editor</Name>
+    <Name>Palette_Optimizer</Name>
     <RootNamespace>Image Editor</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
@@ -23,7 +24,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Image_Editor.py" />
+    <Compile Include="Palette_Optimizer.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
