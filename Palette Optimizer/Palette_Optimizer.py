@@ -10,6 +10,8 @@ import json
 import csv
 import colorsys
 from tkinter import simpledialog
+import time
+import random
 
 # Base directory of this script; all app data lives here
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1574,55 +1576,71 @@ def analyze_image_worker():
 
         # Fast pixel access
         px = new_image.load()
-
+        rng = random.Random(time.time_ns())
         canceled = False
+        
         if app.get_pallette() == "Simplify Pallette":
             total = width * height
             processed = 0
-            # iterate rows first (cache-friendly)
-            for y in range(height):
+            tile = 300
+
+            for y0 in range(0, height, tile):
                 if _cancel_event.is_set():
                     canceled = True
                     break
-                for x in range(width):
+                y1 = min(y0 + tile, height)
+                for x0 in range(0, width, tile):
                     if _cancel_event.is_set():
                         canceled = True
                         break
-                    pixel_color = px[x, y]
-                    # ensure tuple
-                    if not isinstance(pixel_color, tuple):
-                        pixel_color = tuple(pixel_color)
+                    x1 = min(x0 + tile, width)
 
-                    if pixel_color not in saved_colors:
-                        if saved_colors:
-                            nearest = nearest_cache.get(pixel_color)
-                            if nearest is None:
-                                # find nearest saved color by squared distance
-                                best = saved_colors[0]
-                                best_dist = color_distance_sq(pixel_color, best)
-                                for color in saved_colors[1:]:
-                                    d = color_distance_sq(pixel_color, color)
-                                    if d < best_dist:
-                                        best = color
-                                        best_dist = d
-                                nearest = best
-                                nearest_cache[pixel_color] = nearest
+                    # Build random order of all pixels inside this tile
+                    coords = [(x, y) for y in range(y0, y1) for x in range(x0, x1)]
+                    rng.shuffle(coords)
 
-                            # If nearest is too far, add this pixel color as a new saved color
-                            if color_distance_sq(nearest, pixel_color) > allowed_sq:
-                                saved_colors.append(pixel_color)
-                                # remove from cache to avoid stale mapping
-                                nearest_cache.pop(pixel_color, None)
+                    for (x, y) in coords:
+                        if _cancel_event.is_set():
+                            canceled = True
+                            break
+                        pixel_color = px[x, y]
+                        # ensure tuple
+                        if not isinstance(pixel_color, tuple):
+                            pixel_color = tuple(pixel_color)
+
+                        if pixel_color not in saved_colors:
+                            if saved_colors:
+                                nearest = nearest_cache.get(pixel_color)
+                                if nearest is None:
+                                    # find nearest saved color by squared distance
+                                    best = saved_colors[0]
+                                    best_dist = color_distance_sq(pixel_color, best)
+                                    for color in saved_colors[1:]:
+                                        d = color_distance_sq(pixel_color, color)
+                                        if d < best_dist:
+                                            best = color
+                                            best_dist = d
+                                    nearest = best
+                                    nearest_cache[pixel_color] = nearest
+
+                                # If nearest is too far, add this pixel color as a new saved color
+                                if color_distance_sq(nearest, pixel_color) > allowed_sq:
+                                    saved_colors.append(pixel_color)
+                                    # remove from cache to avoid stale mapping
+                                    nearest_cache.pop(pixel_color, None)
+                                else:
+                                    # replace pixel with nearest saved color
+                                    px[x, y] = nearest
                             else:
-                                # replace pixel with nearest saved color
-                                px[x, y] = nearest
-                        else:
-                            saved_colors.append(pixel_color)
-                    processed += 1
-                    if processed % 5000 == 0:
-                        set_progress((processed / total) * 100.0)
-                        with _progress_lock:
-                            processed_pixels = processed
+                                saved_colors.append(pixel_color)
+
+                        processed += 1
+                        if processed % 5000 == 0:
+                            set_progress((processed / total) * 100.0)
+                            with _progress_lock:
+                                processed_pixels = processed
+                    if canceled:
+                        break
                 if canceled:
                     break
         else:
